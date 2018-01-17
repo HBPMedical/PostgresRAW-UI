@@ -24,8 +24,8 @@ function post_query(editor, jsonEditor){
     // otherwise send the query.
     setIndicatorLabel("Running...");
     console.log("sending query", query);
-    // number of rows to get from the  query
-    var rows =100;
+    // number of rows to get from the  query 
+    var rows =1000;
     query_start( query, rows, {
             success: function(data){
                 var token = data.token;
@@ -130,11 +130,11 @@ function set_results(results, jsonEditor, times){
     jsonEditor.set(queryResults);
     redraw_graph( queryResults);
     ongoing = false;
-    if (times){
+    if (times){        
         $('#exec_time').html(
-            '<li class="list-group-item" >Exec. time: ' +
+            '<li class="list-group-item" >Exec. time: ' + 
                 times.executionTime + ' (ms)</li>\
-            <li class="list-group-item" >Comp. time: ' +
+            <li class="list-group-item" >Comp. time: ' + 
                 times.compilationTime + ' (ms)</li>');
    }
 }
@@ -221,7 +221,7 @@ function handleServerError(request, error, editor){
 // and update the UI elements (ace editor etc)
 function handleQueryError(request, error, editor){
     console.log("Got status 400");
-    // will store all error markers here
+    // will store all error markers here 
     var e = [];
     console.log("Error", error);
     switch (error.errorType){
@@ -243,7 +243,7 @@ function handleQueryError(request, error, editor){
                 begin : error.error.position.begin,
                 end : {
                     line : lines.length,
-                    column:lines[lines.length-1].length +1
+                    column:lines[lines.length-1].length +1 
                 }
             }
             var marker = {
@@ -279,11 +279,11 @@ function addErrorMarkers(editor, errors){
 }
 
 // adds a squigly lines, from a position and a message,
-// this is hacky, I tried to check in Ace editor but could not find,
+// this is hacky, I tried to check in Ace editor but could not find, 
 // TODO: check if there is a better way of doing this
 function addSquiglylines(editor, pos, msg, annotations){
     var addmarker= function(p, type){
-        if(pos.begin.line == p.end.line &&
+        if(pos.begin.line == p.end.line && 
                 pos.begin.column == p.end.column){
             pos.end.column ++;
         }
@@ -306,7 +306,7 @@ function addSquiglylines(editor, pos, msg, annotations){
             );
         }
     };
-
+    
     if (pos.begin.line == pos.end.line){
         mark(pos.begin.line, pos.begin.column, pos.end.column);
     }
@@ -365,7 +365,7 @@ var upload_alerts = {
         else{
             append_alert('File registered');
         }
-        // list the schemas again
+        // list the schemas again 
         list_schemas();
     },
     error : function(request, status, error) {
@@ -391,7 +391,7 @@ function add_from_dropbox(){
 
                 var extension =files[n].name.split('.').pop();
                 options.name = files[n].name.split('.')[0];
-                //cleans the not permited characters
+                //cleans the not permited characters 
                 options.name = options.name.replace(/[ \.~-]/g,'_')
                 switch(extension){
                     case 'json':
@@ -418,7 +418,7 @@ function add_from_dropbox(){
 //will add items to select name and file type for the files selected in the dialog
 // returns an array of objects with the ids of the inputs added {name, type}
 function register_files_dialog(files){
-
+    
     $("#modal_body").empty();
     $('<label>Write here the name you\'d like to use</label>').appendTo("#modal_body");
     for(var n = 0; n < files; n++){
@@ -465,7 +465,7 @@ function register_files_dialog(files){
     $('<button type="submit" class="btn btn btn-success" id="register_button">\
         <span class="glyphicon glyphicon-ok-sign"></span>  Go !</button>').appendTo("#modal_body");
 
-    //check promise, when and deferred in jquery,
+    //check promise, when and deferred in jquery,  
     // http://api.jquery.com/promise/
     // http://api.jquery.com/jQuery.when/
     // http://api.jquery.com/deferred.promise/
@@ -493,8 +493,8 @@ function add_from_url(url, name, type) {
     register_file(f, upload_alerts);
 }
 
-// function to download result from a query
-function downloadObj(obj, filename, format){
+// function to download result from a query 
+function downloadObj(obj, filename, format){ 
     //TODO: check if there are limits in the size of data for encodeURIComponent
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent( formatResults( obj, format));
     var dlElem = document.getElementById('downloadAnchorElem');
@@ -506,11 +506,11 @@ function downloadObj(obj, filename, format){
 //function to append success message to the alert pane
 function append_alert(msg){
     $('<div class="col-lg-12 alert alert-success alert-dismissable">'+
-            '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">' +
-                '&times;' +
+            '<button type="button" class="close" ' + 
+                    'data-dismiss="alert" aria-hidden="true">' + 
+                '&times;' + 
             '</button>' +
-            msg +
+            msg + 
          '</div>').appendTo("#alerts");
     $('.alert').stop().fadeOut(5000);
 }
@@ -518,10 +518,10 @@ function append_alert(msg){
 //function to append error message to the alert pane
 function append_error(msg){
     $('<div class="col-lg-12 alert alert-danger">'+
-            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">' +
-                '&times;' +
-            '</button>' +
-            msg +
+            '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">' + 
+                '&times;' + 
+            '</button>' +  
+            msg + 
      '</div>').appendTo("#alerts");
     $('.alert').stop().fadeOut(5000);
 }

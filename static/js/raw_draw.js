@@ -1,5 +1,5 @@
 // the div used in all the drawing functions
-var graph_div =undefined;
+var graph_div =document.getElementById('graph');
 
 // global variable that holds the data to be plotted
 var draw_data = {
@@ -7,23 +7,18 @@ var draw_data = {
     last_draw : "json_editor"
 }
 
-
-google.load("visualization", "1", {packages:["corechart", "table", "geochart", "map"]});
-
-$('#vis-container').load('vis_tab.html #visualization', function(){
-    // assigning the div after loading
-    graph_div = $('#graph')[0];
-    
+$(document).ready(function(){
+    //graph_div =$('#graph')[0];
     // assigns the callbacks to all the elements
     $('#draw_table').on('click', function (e){ draw_graph('table',e)});
     // 2d graphs
     $('#draw_pie').on('click', function (e){ draw_graph('pieChart',e)});
-    $('#draw_bar').on('click', function (e){ draw_graph('columnChart',e)});
-    $('#draw_histogram').on('click', function (e){ draw_graph('histogram',e)});
-    $('#draw_scatter').on('click', function (e){ draw_graph('scatterChart',e)});
+    $('#draw_bar').on('click', function (e){
+        console.log("drawing barchart");
+        draw_graph('barChart', e);
+     });
     $('#draw_line').on('click', function (e){ draw_graph('line_chart',e)});
     //geo graphs
-    $('#draw_geo').on('click', function (e){ draw_graph('geo_world',e)});
     // hierarchy graphs
     $('#draw_sunburst').on('click', function (e){ draw_graph('sunburts',e)});
     $('#draw_tree').on('click', function (e){ draw_graph('tree',e)});
@@ -43,64 +38,41 @@ $('#vis-container').load('vis_tab.html #visualization', function(){
 // loads the forms
 $('#forms-container').load('forms.html #forms');
 
+var graph_colors = ['rgb(127, 127, 255)', 'rgb(255, 127, 127)', 'rgb(127, 255, 127)', 'rgb(198, 99, 198)', 'rgb(99, 99, 99)']
+
 //data structure with functions to visualize the data
 var draw_functions  = {
     table : function(){
-	    //graph_div.empty();
-	    var t = dataToTable(draw_data.data);
-	    var visualization = new google.visualization.Table(graph_div);
-	    visualization.draw(t,
-            {showRowNumber: true, width: '100%', height: '100%'}
-        );
-    },
-    columnChart : function(){ 
-        var t = dataToTable(draw_data.data);
-        var visualization = new google.visualization.ColumnChart(graph_div);
-        visualization.draw(t);
+        var table = arrayToTable(draw_data.data)
+        console.log(table)
+        graph_div.innerHTML = table;
     },
     barChart : function(){ 
-        var t = dataToTable(draw_data.data);
-        var visualization = new google.visualization.BarChart(graph_div);
-        visualization.draw(t);
+        var data = arrayToDataset(draw_data.data, false);
+        console.log("dataset", data)
+        graph_div.innerHTML = '<canvas id="chartjs" style="height: 100%; width: 100%;"></canvas>';
+        var ctx = document.getElementById('chartjs').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar', data: data, options: {}
+        });
     },    
     pieChart : function(){ 
-        var t = dataToTable(draw_data.data);
-        var visualization = new google.visualization.PieChart(graph_div);
-        visualization.draw(t);
-    },
-    scatterChart : function(){
-        var t = dataToTable(draw_data.data);
-        var visualization = new google.visualization.ScatterChart(graph_div);
-        visualization.draw(t);
-    },
-    areaChart : function(){ 
-        var t = dataToTable(draw_data.data);
-        var visualization = new google.visualization.AreaChart(graph_div);
-        visualization.draw(t);
-    },
-    histogram: function(){
-        var t = dataToTable(draw_data.data);
-        var chart = new google.visualization.Histogram(graph_div);
-        chart.draw(t);
+        var data = arrayToDataset(draw_data.data, true);
+        console.log("dataset", data)
+        graph_div.innerHTML = '<canvas id="chartjs" style="height: 100%; width: 100%;"></canvas>';
+        var ctx = document.getElementById('chartjs').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie', data: data, options: {}
+        });
     },
     line_chart: function(){
-        var chart = new google.visualization.LineChart(graph_div);
-        var t = dataToTable(draw_data.data);
-        chart.draw(t);
-    },
-    geo_world: function(){
-        // this is because google maps screws the css
-        // by inserting a div just for drawing at least does not screw up other graphs
-        graph_div.innerHTML = '<div id="map_canvas" style="height: 100%; width: 100%;"></div>';
-        draw_data.last_draw = "geo_world";
-        var chart = new google.visualization.Map(document.getElementById('map_canvas'));
-        options = {
-            mapType : 'normal',
-            showTip : true
-        }
-        var t = dataToTable(draw_data.data);
-        chart.draw(t, options);
-
+        var data = arrayToDataset(draw_data.data);
+        console.log("dataset", data)
+        graph_div.innerHTML = '<canvas id="chartjs" style="height: 100%; width: 100%;"></canvas>';
+        var ctx = document.getElementById('chartjs').getContext('2d');
+        new Chart(ctx, {
+            type: 'line', data: data, options: {}
+        });
     },
     sunburts: function(){
         d = dataToHierarchy(draw_data.data);
@@ -208,10 +180,7 @@ function check_compatible_graphs(data){
         elements = ['draw_table',
                     'draw_pie',
                     'draw_bar',
-                    'draw_histogram',
-                    'draw_scatter',
                     'draw_line',
-                    'draw_geo',
                     'draw_sunburst',
                     'draw_tree',
                     'draw_circle_pack',
@@ -250,16 +219,13 @@ function check_compatible_graphs(data){
         if (type == "object" ){
             keys = Object.keys(data[0]);
             // at least one non numeric value
-            if (all_numeric(data[0], 0) == false){
-                to_enable.push('draw_geo');
-            }
+
             if (keys.length >= 2 && all_numeric(data[0], 1) ){
                 to_enable.push('draw_bar',
                             'draw_histogram',
                             'draw_scatter',
                             'draw_line',
                             '2d_dropdown');
-                to_enable.push('draw_geo');
                 if (all_numeric(data[0], 0) == false) {
                     to_enable.push('draw_pie');
                 }
@@ -272,9 +238,6 @@ function check_compatible_graphs(data){
         else if (type == "number" ){
             to_enable.push('draw_histogram',
                           '2d_dropdown');
-        }
-        else if (type == "string"){
-            to_enable.push('draw_geo');
         }
         else if (type == "array"){
             to_enable.push('3d_dropdown', 
@@ -325,8 +288,6 @@ function correct_enabled_tab(graph){
             case "treemap":
             case "bubble_chart":
                 return "tree_li";
-            case "geo_world":
-                return "geo_li";
             case 'json_editor':
                 return 'values_li';
             default:
@@ -342,8 +303,8 @@ function correct_enabled_tab(graph){
 }
 
 function draw_graph( graph, e){
-    console.log("graph div", graph_div);
-
+    console.log("graph div", graph_div, graph);
+    graph_div.innerHTML = '';
     correct_enabled_tab(graph);
     draw_data.last_draw = graph;
     draw_functions[graph]();

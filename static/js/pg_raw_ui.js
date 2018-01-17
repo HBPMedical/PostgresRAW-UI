@@ -76,6 +76,7 @@ $(document).ready(function(){
 
     var container = document.getElementById("json_editor");
     var options = { mode: 'view' };
+    console.log("container", container);
     var jsonEditor = new JSONEditor(container, options);
 
     function editor_set_autoexecute(b) {

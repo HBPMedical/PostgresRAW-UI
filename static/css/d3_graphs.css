@@ -39,6 +39,36 @@
     font-size:1.5em;
 }
 
+.table-container {
+    overflow: scroll;
+    height: 100%;
+    width: 100%;
+}
+.nested-table {
+	width: auto !important;
+	border: 1px solid #ddd;
+	border-collapse: collapse;
+	overflow: scroll !important;
+}
+
+.nested-table th {
+	text-align: center;
+	vertical-align: top;
+	font-weight: bold;
+	background-color: #ddd;
+	border: 1px solid #ccc;
+}
+
+.nested-table td {
+	text-align: left;
+	vertical-align: top;
+	border: 1px solid #ddd;
+}
+
+.nested-table td, th {
+	padding: 5px;
+	min-width: 64px;
+}
 
 
 /**********************************************************
